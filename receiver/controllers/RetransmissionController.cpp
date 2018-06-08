@@ -9,7 +9,6 @@ void RetransmissionController::sendRequests() {
         std::this_thread::sleep_for(interval);
         lackingPackagesMutex.lock();
         if (!lackingPackages.empty()) {
-            BOOST_LOG_TRIVIAL(info) << "Sending retransmissions";
             ctrlController->sendMessage(Rexmit(lackingPackages).toString(), stationController->getCurrentSender().getCtrlAddress());
         }
         lackingPackagesMutex.unlock();
@@ -17,7 +16,7 @@ void RetransmissionController::sendRequests() {
 }
 
 bool RetransmissionController::hasBufforSpace(uint64_t package) {
-    return (maxReceived - package) / psize <= maxPackagesInBuffer;
+    return maxReceived - package <= (uint64_t)bsize;
 }
 
 void RetransmissionController::newPackage(uint64_t package) {
@@ -26,7 +25,7 @@ void RetransmissionController::newPackage(uint64_t package) {
         lackingPackages.erase(package);
     }
     if (package >= maxReceived + psize) {
-        for (u_int64_t first_byte = maxReceived + psize ; first_byte < package ; first_byte += psize) {
+        for (uint64_t first_byte = maxReceived + psize ; first_byte < package ; first_byte += psize) {
             lackingPackages.insert(first_byte);
         }
         maxReceived = package;

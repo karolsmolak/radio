@@ -19,7 +19,6 @@
 #include <boost/log/expressions.hpp>
 
 namespace po = boost::program_options;
-namespace logging = boost::log;
 
 void parseArgs(int argc, char **argv);
 std::string DISCOVER_ADDR; //adres używany do wykrywania aktywnych nadajników
@@ -29,27 +28,16 @@ int BSIZE; //rozmiar w bajtach bufora
 int RTIME; //przerwa pomiędzy kolejnymi prośbami o retransmisje
 std::string FIRST_STATION; //pierwsza stacja
 
-
 int main(int argc, char* argv[]) {
-    srand(time(NULL));
-    logging::core::get()->set_filter
-            (
-                    logging::trivial::severity > logging::trivial::info
-            );
-
-
-    BOOST_LOG_TRIVIAL(info) << "Parsing arguments";
     parseArgs(argc, argv);
 
-    BOOST_LOG_TRIVIAL(info) << "Initializing components";
     CtrlController ctrlController(DISCOVER_ADDR, CTRL_PORT);
     Buffer buffer(BSIZE);
-    RetransmissionController retransmissionController(RTIME);
+    RetransmissionController retransmissionController(RTIME, BSIZE);
     StationController stationController(FIRST_STATION);
     DataController dataController;
     MenuController menuController(UI_PORT);
 
-    BOOST_LOG_TRIVIAL(info) << "Setting dependencies";
     ctrlController.setStationController(&stationController);
 
     retransmissionController.setCtrlController(&ctrlController);
@@ -69,6 +57,9 @@ int main(int argc, char* argv[]) {
     std::thread retransmission(&RetransmissionController::sendRequests, &retransmissionController);
     std::thread station(&StationController::sendControllPackets, &stationController);
     menuController.processClientConnections();
+    ctrl.join();
+    retransmission.join();
+    station.join();
     return 0;
 }
 

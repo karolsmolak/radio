@@ -12,16 +12,16 @@ class StationController;
 
 class RetransmissionController {
     int rtime;
-    u_int64_t maxReceived = 0;
+    int bsize;
+    uint64_t maxReceived = 0;
     uint32_t psize;
-    int maxPackagesInBuffer;
     CtrlController *ctrlController;
     StationController *stationController;
     std::mutex lackingPackagesMutex;
-    std::set<int> lackingPackages;
+    std::set<uint64_t> lackingPackages;
     bool hasBufforSpace(uint64_t package);
 public:
-    RetransmissionController(int rtime) : rtime(rtime) {}
+    RetransmissionController(int rtime, int bsize) : rtime(rtime), bsize(bsize) {}
     void newPackage(uint64_t package);
     void sendRequests();
     void restart(uint64_t maxReceived, uint32_t psize);

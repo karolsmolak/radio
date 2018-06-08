@@ -22,7 +22,7 @@ public:
     void newByte(unsigned char byte);
 
     ~Fifo() {
-        delete data;
+        delete[] data;
     }
 };
 

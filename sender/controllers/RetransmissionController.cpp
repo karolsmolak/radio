@@ -1,12 +1,11 @@
 #include "RetransmissionController.h"
 
 void RetransmissionController::collectRetransmissions() {
+    auto duration = std::chrono::milliseconds(rtime);
     while (!finished) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(rtime));
+        std::this_thread::sleep_for(duration);
+        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
         queueLock.lock();
-        if (rexmitQueue.size() > 0) {
-            BOOST_LOG_TRIVIAL(info) << "Sending responses for " << rexmitQueue.size() <<" rexmits";
-        }
         auto toRetransmit = rexmitQueue;
         rexmitQueue.clear();
         queueLock.unlock();
@@ -20,9 +19,11 @@ void RetransmissionController::collectRetransmissions() {
         for (uint64_t package : packageSet) {
             toSend.first_byte_num = package;
             if (fifo->getBytes(package, psize, toSend.audio_data)) {
-                dataController->enqueue(toSend);
+                dataController->sendPackage(toSend);
             }
         }
+        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+        duration = std::chrono::milliseconds(rtime) - std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
     }
 }
 

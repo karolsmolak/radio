@@ -12,15 +12,11 @@ class Reply {
     int data_port;
     std::string name;
 public:
-    Reply(const std::string &mcast_addr, int data_port, const std::string &name) : mcast_addr(mcast_addr),
-                                                                                   data_port(data_port), name(name) {}
-
+    Reply(const std::string &mcast_addr, int data_port, const std::string &name) :
+            mcast_addr(mcast_addr), data_port(data_port), name(name) {}
     Reply(std::string message);
     static bool isReply(std::string message);
-
-    std::string toString() {
-        return "BOREWICZ_HERE " + mcast_addr + " " + std::to_string(data_port) + " " + name;
-    }
+    std::string toString();
 
     const std::string &getMcast_addr() const {
         return mcast_addr;
@@ -33,47 +29,19 @@ public:
     const std::string &getName() const {
         return name;
     }
-
 };
 
 class Rexmit {
-    std::vector<int> packages;
+    std::vector<uint64_t> packages;
 public:
-    Rexmit(const std::vector<int> &packages) : packages(packages) {}
+    Rexmit(const std::vector<uint64_t> &packages) : packages(packages) {}
+    Rexmit(const std::set<uint64_t> &packagesSet);
+    Rexmit(std::string message);
 
-    Rexmit(const std::set<int> &packagesSet) {
-        for (int package : packagesSet) {
-            packages.push_back(package);
-        }
-    }
-
-    Rexmit(std::string message) {
-        std::string dummyString;
-        char dummyChar;
-        std::stringstream str(message);
-        int package;
-        str >> dummyString;
-        str >> package;
-        packages.push_back(package);
-        while (str >> dummyChar >> package) {
-            packages.push_back(package);
-        }
-    }
-
-    std::string toString() {
-        std::string result = "LOUDER_PLEASE ";
-        for (size_t i = 0 ; i < packages.size() ; i++) {
-            if (i != 0) {
-                result += ",";
-            }
-            result += std::to_string(packages[i]);
-        }
-        return result;
-    }
-
+    std::string toString();
     static bool isRexmit(std::string message);
 
-    const std::vector<int> &getPackages() const {
+    const std::vector<uint64_t> &getPackages() const {
         return packages;
     }
 };

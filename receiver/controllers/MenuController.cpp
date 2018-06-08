@@ -52,8 +52,9 @@ void MenuController::handleConnection(int socket) {
     setTelnetOptions(socket);
     clearTerminal(socket);
     send_message(getMenuRepresentation(), socket);
-    unsigned char line[20];
+    unsigned char line[100];
     memset(line, 0, sizeof(line));
+    MenuAutomata automata;
     while(true) {
         int ret = read(socket, line, sizeof(line));
         for (int i = 0 ; i < ret ; i++) {

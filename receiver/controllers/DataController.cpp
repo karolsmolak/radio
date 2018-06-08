@@ -11,7 +11,6 @@
 #include "../../messages/messages.h"
 
 void DataController::play() {
-    BOOST_LOG_TRIVIAL(info) << "Playing station " << sender;
     int dataSocket = sender.getDataSocket();
     bool first = true;
     uint64_t session_id;
@@ -21,24 +20,26 @@ void DataController::play() {
     Package package;
     std::thread out;
     while (isPlaying) {
-        rcv_len = read(dataSocket, &package, 1000);
-        if (rcv_len < 0) {
-            BOOST_LOG_TRIVIAL(info) << "Not getting data";
-        } else {
+        rcv_len = read(dataSocket, &package, 1500);
+        if (rcv_len > 0) {
             if (first || package.session_id > session_id || buffer->hasLackingBytes()) {
                 if (out.joinable()) {
+                    buffer->setFlushing(false);
                     out.join();
                 }
                 session_id = package.session_id;
                 byte0 = package.first_byte_num;
                 psize = rcv_len - 16;
-                buffer->clear(byte0);
+                buffer->clear(byte0, psize);
                 retransmissionController->restart(byte0, psize);
             }
             if (package.session_id == session_id) {
-                buffer->storePackage(package, psize);
+                buffer->storePackage(package);
                 if (buffer->ready() && !buffer->isFlushing()) {
-                    BOOST_LOG_TRIVIAL(info) << "Buffer filled, printing";
+                    if (out.joinable()) {
+                        buffer->setFlushing(false);
+                        out.join();
+                    }
                     buffer->setFlushing(true);
                     out = std::thread(&Buffer::flush, buffer);
                 }
@@ -48,20 +49,19 @@ void DataController::play() {
         }
     }
     if (out.joinable()) {
+        buffer->setFlushing(false);
         out.join();
     }
 }
 
 void DataController::notifyCurrentSenderChange() {
-    BOOST_LOG_TRIVIAL(info) << "DATA CONTROLLER: sender changed";
     if (isPlaying) {
-        BOOST_LOG_TRIVIAL(info) << "Closing socket";
         sender.closeDataSocket();
         buffer->setFlushing(false);
         isPlaying = false;
         playThread.join();
     }
-    if (stationController->isInitialized()) {
+    if (stationController->hasSenders()) {
         sender = stationController->getCurrentSender();
         sender.initializeDataSocket();
         isPlaying = true;

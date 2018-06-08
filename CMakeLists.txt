@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9.1)
+cmake_minimum_required(VERSION 3.8.2)
 project(sikradio)
 
 
@@ -11,6 +11,7 @@ INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-Wall -O2")
 
+# http://stackoverflow.com/questions/10555706/
 macro (add_executable _name)
     # invoke built-in add_executable
     _add_executable(${ARGV})

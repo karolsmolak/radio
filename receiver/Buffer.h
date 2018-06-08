@@ -14,51 +14,56 @@
 //Class responsible for storing audio data
 class Buffer {
     int size;
-    int begin = 0;
+    int psize;
+    uint64_t begin = 0;
     unsigned char *buffer;
     uint64_t maxReceived;
     uint64_t byte0;
     bool *filled;
-    bool flushing = false;
+    std::atomic_bool flushing = false;
     bool lackingBytes = false;
     std::mutex bufferLock;
+    unsigned char getNextByte();
 public:
+
     Buffer(int size) : size(size) {
         buffer = new unsigned char[size];
         filled = new bool[size];
     }
 
-    void clear(uint64_t byte0) {
+    void clear(uint64_t byte0, int psize) {
         flushing = false;
         lackingBytes = false;
         for (int i = 0 ; i < size ; i++) {
             filled[i] = false;
         }
         this->byte0 = byte0;
-        begin = byte0 % size;
+        begin = byte0;
+        this->psize = psize;
         this->maxReceived = byte0;
     }
 
     bool ready() {
-        return maxReceived > byte0 + 3 * size / 4;
+        return maxReceived + psize > byte0 + 3 * size / 4;
     }
-
-    void storePackage(Package &package, int psize);
-    unsigned char getNextByte();
+    void storePackage(Package &package);
 
     bool hasNextByte() {
-        return filled[begin];
+        std::lock_guard<std::mutex> lock(bufferLock);
+        if (begin < maxReceived + psize - size) {
+            return false;
+        } else if (begin >= maxReceived + psize) {
+            return false;
+        }
+        return filled[begin % size];
     }
 
     void flush() {
-        int bytes = 0;
         while (flushing) {
             if (hasNextByte()) {
                 putchar(getNextByte());
-                bytes++;
             } else {
                 lackingBytes = true;
-                BOOST_LOG_TRIVIAL(info) << "No bytes, finishing ";
                 return;
             }
         }
@@ -73,8 +78,8 @@ public:
     }
 
     ~Buffer() {
-        delete buffer;
-        delete filled;
+        delete[] buffer;
+        delete[] filled;
     }
 
     bool hasLackingBytes() {

@@ -12,7 +12,6 @@
 #include <boost/log/expressions.hpp>
 
 namespace po = boost::program_options;
-namespace logging = boost::log;
 
 std::string NAME;
 int PSIZE;
@@ -22,19 +21,12 @@ int DATA_PORT;
 std::string MCAST_ADDR;
 int RTIME;
 
-inline uint64_t secondsFromEpoch();
+uint64_t secondsFromEpoch();
 void parseArgs(int argc, char *argv[]);
 
 int main(int argc, char* argv[]) {
-    logging::core::get()->set_filter
-            (
-                    logging::trivial::severity >= logging::trivial::trace
-            );
-
     parseArgs(argc, argv);
     uint64_t sessionId = secondsFromEpoch();
-    BOOST_LOG_TRIVIAL(info) << "Starting, session id: " << sessionId;
-
     DataController dataController(DATA_PORT, MCAST_ADDR, PSIZE + 16);
     Fifo fifo(FSIZE);
     RetransmissionController retransmissionController(sessionId, PSIZE, RTIME);
@@ -46,7 +38,6 @@ int main(int argc, char* argv[]) {
 
     std::thread ctrlWorker = std::thread(&CtrlController::readMessages, &ctrlController);
     std::thread retransmissionWorker = std::thread(&RetransmissionController::collectRetransmissions, &retransmissionController);
-    std::thread dataWorker = std::thread(&DataController::sendPackages, &dataController);
 
     uint64_t byteNum = 0;
     Package package(sessionId, byteNum);
@@ -57,18 +48,14 @@ int main(int argc, char* argv[]) {
         byteNum++;
         if (byteNum % PSIZE == 0) {
             package.first_byte_num = byteNum - PSIZE;
-            dataController.enqueue(package);
+            dataController.sendPackage(package);
         }
     }
 
-    BOOST_LOG_TRIVIAL(info) << "Finished, notifying other threads";
     retransmissionController.setFinished(true);
     ctrlController.setFinished(true);
-    dataController.setFinished(true);
     ctrlWorker.join();
     retransmissionWorker.join();
-    dataWorker.join();
-    BOOST_LOG_TRIVIAL(info) << "Exiting";
     return 0;
 }
 
@@ -108,7 +95,7 @@ void parseArgs(int argc, char *argv[]) {
     }
 }
 
-inline uint64_t secondsFromEpoch() {
+uint64_t secondsFromEpoch() {
     return std::chrono::duration_cast<std::chrono::seconds>
             (std::chrono::system_clock::now().time_since_epoch()).count();
 }

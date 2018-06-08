@@ -18,7 +18,7 @@ enum State {
 };
 
 class MenuAutomata {
-    State state;
+    State state = UNKNOWN;
 public:
     State nextByte(char byte) {
         if (byte == '\33') {
@@ -43,9 +43,7 @@ class MenuController {
     void handleConnection(int socket);
     std::set<int> connectionSockets;
     std::mutex connectionSocketsMutex;
-    MenuAutomata automata;
     void executeUserAction(State action);
-
 public:
     void processClientConnections();
     void notifyStateChange();

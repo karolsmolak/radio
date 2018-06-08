@@ -37,6 +37,10 @@ public:
         return senders;
     }
 
+    bool hasSenders() {
+        return !senders.empty();
+    }
+
     Sender getCurrentSender() {
         return currentSender;
     }
@@ -51,10 +55,6 @@ public:
 
     void setDataController(DataController *dataController) {
         this->dataController = dataController;
-    }
-
-    bool isInitialized() const {
-        return initialized;
     }
 };
 

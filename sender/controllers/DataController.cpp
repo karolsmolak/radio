@@ -20,36 +20,10 @@ DataController::DataController(int dataPort, const std::string &mcastAddr, int p
         syserr("inet_aton");
     if (connect(dataSocket, (struct sockaddr *)&remote_address, sizeof remote_address) < 0)
         syserr("connect");
-    emptyMutex.lock();
 }
 
-void DataController::sendPackages() {
-    while (!finished) {
-        while (true) {
-            emptyMutex.lock();
-            toSendMutex.lock();
-            if (toSend.empty()) {
-                toSendMutex.unlock();
-                break;
-            }
-            emptyMutex.unlock();
-            Package package = toSend.front();
-            toSend.pop_front();
-            if (toSend.empty()) {
-                emptyMutex.lock();
-            }
-            toSendMutex.unlock();
-            if (write(dataSocket, &package, packageSize) < 0) {
-                syserr("error writing");
-            }
-        }
-    }
-}
-
-void DataController::enqueue(Package package) {
-    std::lock_guard<std::mutex> lock(toSendMutex);
-    toSend.push_back(package);
-    if (toSend.size() == 1) {
-        emptyMutex.unlock();
+void DataController::sendPackage(Package& package) {
+    if (write(dataSocket, &package, packageSize) < 0) {
+        syserr("error writing");
     }
 }

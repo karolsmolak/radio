@@ -24,7 +24,6 @@ void CtrlController::readMessages() {
             } else if (!strcmp(buffer, LOOKUP.c_str())) {
                 Reply reply(mcastAddr, dataPort, name);
                 std::string message = reply.toString();
-                BOOST_LOG_TRIVIAL(info) << "Sending " << message;
                 snd_len = sendto(ctrlSocket, message.c_str(), message.length(), 0,
                                  (struct sockaddr *) &client_address, snda_len);
                 if (snd_len != message.length())
