@@ -1,3 +1,4 @@
+#include <iostream>
 #include "RetransmissionController.h"
 
 void RetransmissionController::collectRetransmissions() {
@@ -10,7 +11,7 @@ void RetransmissionController::collectRetransmissions() {
         rexmitQueue.clear();
         queueLock.unlock();
         std::set<uint64_t> packageSet;
-        for (auto request : toRetransmit) {
+        for (auto &request : toRetransmit) {
             for (uint64_t package : request.getPackages()) {
                 packageSet.insert(package);
             }

@@ -67,7 +67,7 @@ void StationController::addSender(Sender sender) {
     //look for a place to add sender to maintain alphabetical order
     bool inserted = false;
     for (size_t i = 0 ; i < senders.size() ; i++) {
-        if (senders[i].getName() > sender.getName()) {
+        if (senders[i] > sender) {
             senders.insert(senders.begin() + i, sender);
             inserted = true;
             break;
@@ -77,7 +77,7 @@ void StationController::addSender(Sender sender) {
         senders.push_back(sender);
     }
 
-    if ((!initialized && (firstSender == sender.getName() || firstSender.empty())) || (initialized && hasSenders())) {
+    if ((!initialized && (firstSender == sender.getName() || firstSender.empty())) || (initialized && !hasSenders())) {
         currentSender = sender;
         initialized = true;
         dataController->notifyCurrentSenderChange();
@@ -105,7 +105,7 @@ void StationController::previousStation() {
     if (senders.size() > 1) {
         for (size_t i = 0 ; i < senders.size() ; i++) {
             if (senders[i] == currentSender) {
-                currentSender = senders[(i - 1) % senders.size()];
+                currentSender = senders[(i + senders.size() - 1) % senders.size()];
                 break;
             }
         }

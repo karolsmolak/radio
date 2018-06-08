@@ -19,14 +19,14 @@ std::string MenuController::getMenuRepresentation() {
     std::string result = "------------------------------------------------------------------------\n\r"
                          "  SIK Radio\n\r"
                          "------------------------------------------------------------------------\n\r";
-    for (size_t i = 0 ; i < available_senders.size() ; i++) {
+    for (auto &available_sender : available_senders) {
         result += "  ";
-        if (currentSender == available_senders[i]) {
+        if (currentSender == available_sender) {
             result += "> ";
         } else {
             result += "  ";
         }
-        result += available_senders[i].getName() + "\n\r";
+        result += available_sender.getName() + "\n\r";
     }
     result += "------------------------------------------------------------------------\n\r";
     return result;

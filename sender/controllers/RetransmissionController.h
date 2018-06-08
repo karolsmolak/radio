@@ -14,7 +14,7 @@ class Fifo;
 class DataController;
 
 class RetransmissionController {
-    bool finished;
+    bool finished = false;
     uint64_t sessionId;
     int psize;
     int rtime;

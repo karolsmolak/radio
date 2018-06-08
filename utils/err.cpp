@@ -1,11 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <unistd.h>
-#include <stdarg.h>
-#include <errno.h>
+#include <cstdarg>
+#include <cerrno>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <string.h>
+#include <cstring>
 #include "err.h"
 
 void syserr(const char *fmt, ...)  

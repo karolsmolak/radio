@@ -1,8 +1,9 @@
+#include <iostream>
 #include "Buffer.h"
 
 void Buffer::storePackage(Package &package) {
     std::lock_guard<std::mutex> lock(bufferLock);
-    if (maxReceived + psize - package.first_byte_num >= (uint64_t)size) {
+    if (maxReceived + psize >= size + package.first_byte_num) {
         return; //package too old
     }
     if (package.first_byte_num > maxReceived) {

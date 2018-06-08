@@ -36,10 +36,6 @@ void DataController::play() {
             if (package.session_id == session_id) {
                 buffer->storePackage(package);
                 if (buffer->ready() && !buffer->isFlushing()) {
-                    if (out.joinable()) {
-                        buffer->setFlushing(false);
-                        out.join();
-                    }
                     buffer->setFlushing(true);
                     out = std::thread(&Buffer::flush, buffer);
                 }
@@ -57,7 +53,6 @@ void DataController::play() {
 void DataController::notifyCurrentSenderChange() {
     if (isPlaying) {
         sender.closeDataSocket();
-        buffer->setFlushing(false);
         isPlaying = false;
         playThread.join();
     }

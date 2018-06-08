@@ -11,7 +11,7 @@ class Fifo {
     int fsize;
     unsigned char *data;
     int end = 0;
-    uint64_t bytesReceived;
+    uint64_t bytesReceived = 0;
     std::mutex fifoMutex;
 public:
     Fifo(int fsize) : fsize(fsize) {

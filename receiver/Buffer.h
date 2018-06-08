@@ -1,7 +1,3 @@
-//
-// Created by karol on 24.05.18.
-//
-
 #ifndef SIKRADIO_BUFFER_H
 #define SIKRADIO_BUFFER_H
 
@@ -48,19 +44,27 @@ public:
     }
     void storePackage(Package &package);
 
-    bool hasNextByte() {
+    bool hasNextSample() {
         std::lock_guard<std::mutex> lock(bufferLock);
         if (begin < maxReceived + psize - size) {
             return false;
-        } else if (begin >= maxReceived + psize) {
+        } else if (begin + 3 >= maxReceived + psize) {
             return false;
         }
-        return filled[begin % size];
+        for (int i = 0 ; i < 4 ; i++) {
+            if (!filled[(begin + i) % size]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     void flush() {
         while (flushing) {
-            if (hasNextByte()) {
+            if (hasNextSample()) {
+                putchar(getNextByte());
+                putchar(getNextByte());
+                putchar(getNextByte());
                 putchar(getNextByte());
             } else {
                 lackingBytes = true;
