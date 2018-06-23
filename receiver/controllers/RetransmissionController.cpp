@@ -20,7 +20,7 @@ bool RetransmissionController::hasBufforSpace(uint64_t package) {
 }
 
 void RetransmissionController::newPackage(uint64_t package) {
-    lackingPackagesMutex.lock();
+    std::lock_guard<std::mutex> lock(lackingPackagesMutex);
     if (lackingPackages.find(package) != lackingPackages.end()) {
         lackingPackages.erase(package);
     }
@@ -37,13 +37,11 @@ void RetransmissionController::newPackage(uint64_t package) {
             break;
         }
     }
-    lackingPackagesMutex.unlock();
 }
 
 void RetransmissionController::restart(uint64_t maxReceived, uint32_t psize) {
-    lackingPackagesMutex.lock();
+    std::lock_guard<std::mutex> lock(lackingPackagesMutex);
     lackingPackages.clear();
     this->maxReceived = maxReceived;
     this->psize = psize;
-    lackingPackagesMutex.unlock();
 }

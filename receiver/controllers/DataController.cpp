@@ -20,7 +20,7 @@ void DataController::play() {
     Package package;
     std::thread out;
     while (isPlaying) {
-        rcv_len = read(dataSocket, &package, 1500);
+        rcv_len = (int) read(dataSocket, &package, 1500);
         if (rcv_len > 0) {
             if (first || package.session_id > session_id || buffer->hasLackingBytes()) {
                 if (out.joinable()) {

@@ -38,7 +38,7 @@ public:
 
 class MenuController {
     StationController *stationController;
-    int ui_port;
+    unsigned int ui_port;
     std::string getMenuRepresentation();
     void handleConnection(int socket);
     std::set<int> connectionSockets;

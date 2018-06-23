@@ -5,7 +5,6 @@ void CtrlController::readMessages() {
     ssize_t len, snd_len;
     struct sockaddr_in client_address;
     char buffer[1024];
-    snda_len = (socklen_t) sizeof(client_address);
     while (!finished) {
         rcva_len = (socklen_t) sizeof(client_address);
         len = recvfrom(ctrlSocket, buffer, sizeof(buffer), 0,

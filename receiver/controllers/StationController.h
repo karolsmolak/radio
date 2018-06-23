@@ -2,6 +2,8 @@
 #define SIKRADIO_STATIONCONTROLLER_H
 
 
+static const int START_LOOKUP_RETRIES = 6;
+
 #include <mutex>
 #include <vector>
 #include "../Sender.h"
@@ -25,12 +27,14 @@ class StationController {
     std::mutex sendersMutex;
 
     void addSender(Sender sender);
+    void sendLookupsOnStart(const std::chrono::duration<int64_t, std::milli> &START_LOOKUP_INTERVAL) const;
 public:
-    StationController(const std::string &firstSender) : firstSender(firstSender) {}
 
+    StationController(const std::string &firstSender) : firstSender(firstSender) {}
     void processReply(Reply reply, struct sockaddr_in sender_ctrl_address);
     void sendControllPackets();
     void nextStation();
+
     void previousStation();
 
     const std::vector<Sender> &getSenders() {
@@ -56,6 +60,8 @@ public:
     void setDataController(DataController *dataController) {
         this->dataController = dataController;
     }
+
+    bool isSenderChangeable() const;
 };
 
 

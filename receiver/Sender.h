@@ -19,7 +19,8 @@ class Sender {
     struct ip_mreq ip_mreq;
     std::chrono::system_clock::time_point lastResponse;
 public:
-    Sender(const std::string &name, const std::string &mcast_addr, int data_port, struct sockaddr_in ctrlAddress) : name(name), mcastAddr(mcast_addr), data_port(data_port), ctrlAddress(ctrlAddress) {
+    Sender(const std::string &name, const std::string &mcast_addr, int data_port, struct sockaddr_in ctrlAddress) :
+            name(name), mcastAddr(mcast_addr), data_port(data_port), ctrlAddress(ctrlAddress) {
         update();
     }
 
@@ -38,7 +39,7 @@ public:
 
         char loopch = 1;
 
-        if(setsockopt(dataSocket, IPPROTO_IP, IP_MULTICAST_LOOP, (char *)&loopch, sizeof(loopch)) < 0) {
+        if(setsockopt(dataSocket, IPPROTO_IP, IP_MULTICAST_LOOP, &loopch, sizeof(loopch)) < 0) {
             perror("Setting IP_MULTICAST_LOOP error");
         }
 
@@ -71,7 +72,7 @@ public:
     }
 
     int secondsFromLastResponse() {
-        return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - lastResponse).count();
+        return (int) std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - lastResponse).count();
     }
 
     void update() {

@@ -15,10 +15,7 @@
 void StationController::sendControllPackets() {
     const auto LOOKUP_INTERVAL = std::chrono::seconds(5);
     const auto START_LOOKUP_INTERVAL = std::chrono::milliseconds(500);
-    for (int i = 0 ; i < 6 ; i++) {
-        ctrlController->sendMessage(LOOKUP);
-        std::this_thread::sleep_for(START_LOOKUP_INTERVAL);
-    }
+    sendLookupsOnStart(START_LOOKUP_INTERVAL);
     sendersMutex.lock();
     if (!initialized && hasSenders()) {
         initialized = true;
@@ -36,7 +33,7 @@ void StationController::sendControllPackets() {
         for (size_t i = 0 ; i < senders.size() ; i++) {
             if (senders[i].secondsFromLastResponse() >= MAX_SECONDS_FROM_LAST_RESPONSE) {
                 if (senders[i] == currentSender) {
-                    if (senders.size() > 1) {
+                    if (isSenderChangeable()) {
                         currentSender = senders[(i + 1) % senders.size()];
                     }
                     dataController->notifyCurrentSenderChange();
@@ -85,10 +82,9 @@ void StationController::addSender(Sender sender) {
     menuController->notifyStateChange();
 }
 
-
 void StationController::nextStation() {
     std::lock_guard<std::mutex> lock(sendersMutex);
-    if (senders.size() > 1) {
+    if (isSenderChangeable()) {
         for (size_t i = 0 ; i < senders.size() ; i++) {
             if (senders[i] == currentSender) {
                 currentSender = senders[(i + 1) % senders.size()];
@@ -102,7 +98,7 @@ void StationController::nextStation() {
 
 void StationController::previousStation() {
     std::lock_guard<std::mutex> lock(sendersMutex);
-    if (senders.size() > 1) {
+    if (isSenderChangeable()) {
         for (size_t i = 0 ; i < senders.size() ; i++) {
             if (senders[i] == currentSender) {
                 currentSender = senders[(i + senders.size() - 1) % senders.size()];
@@ -113,3 +109,13 @@ void StationController::previousStation() {
         dataController->notifyCurrentSenderChange();
     }
 }
+
+
+void StationController::sendLookupsOnStart(const std::chrono::duration<int64_t, std::milli> &START_LOOKUP_INTERVAL) const {
+    for (int i = 0 ; i < START_LOOKUP_RETRIES; i++) {
+        ctrlController->sendMessage(LOOKUP);
+        std::this_thread::sleep_for(START_LOOKUP_INTERVAL);
+    }
+}
+
+bool StationController::isSenderChangeable() const { return isSenderChangeable(); }

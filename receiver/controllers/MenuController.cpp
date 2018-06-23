@@ -56,10 +56,11 @@ void MenuController::handleConnection(int socket) {
     memset(line, 0, sizeof(line));
     MenuAutomata automata;
     while(true) {
-        int ret = read(socket, line, sizeof(line));
+        int ret = (int)read(socket, line, sizeof(line));
         for (int i = 0 ; i < ret ; i++) {
             executeUserAction(automata.nextByte(line[i]));
         }
+        //todo: sprawdzic kod bledu
         if (ret == -1) {
             perror("read");
         } else if (ret == 0) {
