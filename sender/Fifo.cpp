@@ -8,9 +8,8 @@ bool Fifo::getBytes(uint64_t firstByte, int psize, uint8_t *dest) {
             dest[i - begin] = data[i % fsize];
         }
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 void Fifo::newByte(uint8_t byte) {

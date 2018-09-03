@@ -2,7 +2,7 @@
 #include "Buffer.h"
 
 void Buffer::storePackage(Package &package) {
-    //std::lock_guard<std::mutex> lock(bufferLock);
+    std::lock_guard<std::mutex> lock(bufferLock);
     if (maxReceived + psize >= size + package.first_byte_num) {
         return; //package too old
     }
@@ -20,7 +20,7 @@ void Buffer::storePackage(Package &package) {
 }
 
 bool Buffer::printNextSample() {
-    //std::lock_guard<std::mutex> lock(bufferLock);
+    std::lock_guard<std::mutex> lock(bufferLock);
     if (begin + size < maxReceived + psize) {
         return false;
     } else if (begin + 3 >= maxReceived + psize) {

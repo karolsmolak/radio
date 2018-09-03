@@ -40,6 +40,7 @@ public:
     }
 
     bool ready() {
+        std::lock_guard<std::mutex> lock(bufferLock);
         return maxReceived + psize > byte0 + 3 * size / 4;
     }
 

@@ -13,7 +13,9 @@ void RetransmissionController::collectRetransmissions() {
         std::set<uint64_t> packageSet;
         for (auto &request : toRetransmit) {
             for (uint64_t package : request.getPackages()) {
-                packageSet.insert(package);
+                if (package % psize == 0) {
+                    packageSet.insert(package);
+                }
             }
         }
         Package toSend = Package(sessionId, 0);
