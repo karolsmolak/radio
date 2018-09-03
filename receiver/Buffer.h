@@ -5,6 +5,7 @@
 #include <boost/log/trivial.hpp>
 #include <mutex>
 #include <thread>
+#include <iostream>
 #include "../messages/messages.h"
 
 //Class responsible for storing audio data
@@ -12,18 +13,17 @@ class Buffer {
     int size;
     int psize;
     uint64_t begin = 0;
-    unsigned char *buffer;
+    uint8_t *buffer;
     uint64_t maxReceived;
     uint64_t byte0;
     bool *filled;
     std::atomic_bool flushing = false;
     bool lackingBytes = false;
     std::mutex bufferLock;
-    unsigned char getNextByte();
 public:
 
     Buffer(int size) : size(size) {
-        buffer = new unsigned char[size];
+        buffer = new uint8_t[size];
         filled = new bool[size];
     }
 
@@ -42,36 +42,12 @@ public:
     bool ready() {
         return maxReceived + psize > byte0 + 3 * size / 4;
     }
+
     void storePackage(Package &package);
 
-    bool hasNextSample() {
-        std::lock_guard<std::mutex> lock(bufferLock);
-        if (begin < maxReceived + psize - size) {
-            return false;
-        } else if (begin + 3 >= maxReceived + psize) {
-            return false;
-        }
-        for (int i = 0 ; i < 4 ; i++) {
-            if (!filled[(begin + i) % size]) {
-                return false;
-            }
-        }
-        return true;
-    }
+    bool printNextSample();
 
-    void flush() {
-        while (flushing) {
-            if (hasNextSample()) {
-                putchar(getNextByte());
-                putchar(getNextByte());
-                putchar(getNextByte());
-                putchar(getNextByte());
-            } else {
-                lackingBytes = true;
-                return;
-            }
-        }
-    }
+    void flush();
 
     void setFlushing(bool flushing) {
         Buffer::flushing = flushing;

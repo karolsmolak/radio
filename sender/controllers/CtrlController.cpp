@@ -1,3 +1,4 @@
+#include <iostream>
 #include "CtrlController.h"
 
 void CtrlController::readMessages() {
@@ -38,7 +39,7 @@ CtrlController::CtrlController(int ctrlPort, int dataPort, std::string name, std
         syserr("socket");
 
     struct timeval tv;
-    tv.tv_sec = 5;
+    tv.tv_sec = 1;
     tv.tv_usec = 0;
     if (setsockopt(ctrlSocket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
         perror("Error");

@@ -6,7 +6,7 @@ DataController::DataController(int dataPort, const std::string &mcastAddr, int p
         syserr("socket");
     }
 
-    int optval = 1;
+    socklen_t optval = 1;
     if (setsockopt(dataSocket, SOL_SOCKET, SO_BROADCAST, (void*)&optval, sizeof optval) < 0) {
         syserr("setsockopt broadcast");
     }
@@ -15,6 +15,10 @@ DataController::DataController(int dataPort, const std::string &mcastAddr, int p
     if (setsockopt(dataSocket, IPPROTO_IP, IP_MULTICAST_TTL, (void*)&optval, sizeof optval) < 0) {
         syserr("setsockopt multicast ttl");
     }
+
+    optval = 0;
+    if (setsockopt(dataSocket, SOL_IP, IP_MULTICAST_LOOP, (void*)&optval, sizeof optval) < 0)
+        syserr("setsockopt loop");
 
     struct sockaddr_in remote_address;
     remote_address.sin_family = AF_INET;

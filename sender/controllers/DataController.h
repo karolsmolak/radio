@@ -11,7 +11,6 @@
 #include "../../messages/messages.h"
 #include "../../utils/err.h"
 
-
 class DataController {
     int dataSocket;
     int dataPort;

@@ -30,7 +30,7 @@ void StationController::sendControllPackets() {
         std::this_thread::sleep_for(LOOKUP_INTERVAL);
         bool stateChange = false;
         std::lock_guard<std::mutex> lock(sendersMutex);
-        for (size_t i = 0 ; i < senders.size() ; i++) {
+        for (int i = 0 ; i < senders.size() ; i++) {
             if (senders[i].secondsFromLastResponse() >= MAX_SECONDS_FROM_LAST_RESPONSE) {
                 if (senders[i] == currentSender) {
                     if (isSenderChangeable()) {
@@ -105,8 +105,8 @@ void StationController::previousStation() {
                 break;
             }
         }
-        menuController->notifyStateChange();
         dataController->notifyCurrentSenderChange();
+        menuController->notifyStateChange();
     }
 }
 
@@ -118,4 +118,4 @@ void StationController::sendLookupsOnStart(const std::chrono::duration<int64_t, 
     }
 }
 
-bool StationController::isSenderChangeable() const { return isSenderChangeable(); }
+bool StationController::isSenderChangeable() const { return senders.size() > 1; }

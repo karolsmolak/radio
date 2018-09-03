@@ -1,6 +1,5 @@
 
 #include <thread>
-#include <boost/log/trivial.hpp>
 #include "RetransmissionController.h"
 
 void RetransmissionController::sendRequests() {
@@ -16,7 +15,7 @@ void RetransmissionController::sendRequests() {
 }
 
 bool RetransmissionController::hasBufforSpace(uint64_t package) {
-    return maxReceived - package <= (uint64_t)bsize;
+    return maxReceived <= package + bsize;
 }
 
 void RetransmissionController::newPackage(uint64_t package) {

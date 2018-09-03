@@ -58,7 +58,7 @@ CtrlController::CtrlController(std::string &discoverAddr, int ctrlPort) :
     local_address.sin_addr.s_addr = htonl(INADDR_ANY);
     local_address.sin_port = htons(0);
     if (bind(ctrlSocket, (struct sockaddr *)&local_address, sizeof local_address) < 0)
-    syserr("bind");
+        syserr("bind");
 
     broadcast_address.sin_family = AF_INET;
     broadcast_address.sin_port = htons(ctrlPort);

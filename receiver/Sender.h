@@ -4,11 +4,13 @@
 #include <string>
 #include <chrono>
 #include "../utils/err.h"
+#include "../messages/messages.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <ostream>
 #include <boost/log/trivial.hpp>
+#include <iostream>
 
 class Sender {
     std::string name;
@@ -18,43 +20,47 @@ class Sender {
     struct sockaddr_in ctrlAddress;
     struct ip_mreq ip_mreq;
     std::chrono::system_clock::time_point lastResponse;
+    bool socketInitialized = false;
+    bool membershipAdded = true;
 public:
     Sender(const std::string &name, const std::string &mcast_addr, int data_port, struct sockaddr_in ctrlAddress) :
             name(name), mcastAddr(mcast_addr), data_port(data_port), ctrlAddress(ctrlAddress) {
         update();
     }
 
-    void initializeDataSocket() {
+    bool initializeDataSocket() {
         struct sockaddr_in local_address;
 
         dataSocket = socket(AF_INET, SOCK_DGRAM, 0);
-        if (dataSocket < 0)
-            syserr("socket");
+        if (dataSocket < 0){
+            return false;
+        }
+        socketInitialized = true;
 
         ip_mreq.imr_interface.s_addr = htonl(INADDR_ANY);
-        if (inet_aton(mcastAddr.c_str(), &ip_mreq.imr_multiaddr) == 0)
-            syserr("inet_aton");
-        if (setsockopt(dataSocket, IPPROTO_IP, IP_ADD_MEMBERSHIP, (void*)&ip_mreq, sizeof ip_mreq) < 0)
-            syserr("setsockopt");
-
-        char loopch = 1;
-
-        if(setsockopt(dataSocket, IPPROTO_IP, IP_MULTICAST_LOOP, &loopch, sizeof(loopch)) < 0) {
-            perror("Setting IP_MULTICAST_LOOP error");
+        if (inet_aton(mcastAddr.c_str(), &ip_mreq.imr_multiaddr) == 0) {
+            return false;
         }
+        if (setsockopt(dataSocket, IPPROTO_IP, IP_ADD_MEMBERSHIP, (void*)&ip_mreq, sizeof ip_mreq) < 0) {
+            return false;
+        }
+        membershipAdded = true;
 
         struct timeval tv;
         tv.tv_sec = 1;
         tv.tv_usec = 0;
         if (setsockopt(dataSocket, SOL_SOCKET, SO_RCVTIMEO, &tv,sizeof(tv)) < 0) {
-            perror("Error");
+            return false;
         }
 
         local_address.sin_family = AF_INET;
         local_address.sin_addr.s_addr = htonl(INADDR_ANY);
         local_address.sin_port = htons(data_port);
-        if (bind(dataSocket, (struct sockaddr *)&local_address, sizeof local_address) < 0)
-            syserr("bind");
+        if (bind(dataSocket, (struct sockaddr *)&local_address, sizeof local_address) < 0) {
+            return false;
+        }
+
+        return true;
     }
 
     Sender() {}
@@ -129,9 +135,12 @@ public:
     }
 
     void closeDataSocket() {
-        if (setsockopt(dataSocket, IPPROTO_IP, IP_DROP_MEMBERSHIP, (void*)&ip_mreq, sizeof ip_mreq) < 0)
-            syserr("setsockopt");
-        close(dataSocket);
+        if (membershipAdded) {
+            setsockopt(dataSocket, IPPROTO_IP, IP_DROP_MEMBERSHIP, (void*)&ip_mreq, sizeof ip_mreq);
+        }
+        if (socketInitialized) {
+            close(dataSocket);
+        }
     }
 };
 

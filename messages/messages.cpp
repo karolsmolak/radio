@@ -1,10 +1,10 @@
 #include "messages.h"
 
-std::regex replyRegex(R"(BOREWICZ_HERE\s([\x21-\x7f]+)\s([\x21-\x7f]+)\s([\x20-\x7f]+))");
-std::regex rexmitRegex(R"(LOUDER_PLEASE\s(\d+)(,\d+)*)");
+std::regex replyRegex(R"(BOREWICZ_HERE\s([\x21-\x7f]+)\s(\d+)\s([\x20-\x7f]+)\n)");
+std::regex rexmitRegex(R"(LOUDER_PLEASE\s(\d+)(,\d+)*\n)");
 
 Reply::Reply(std::string message) {
-    //message must be rexmit
+    //message must be reply
     std::smatch match;
     std::regex_match(message, match, replyRegex);
     mcast_addr = match.str(1);
@@ -13,11 +13,17 @@ Reply::Reply(std::string message) {
 }
 
 bool Reply::isReply(std::string message) {
-    return std::regex_match(message, replyRegex);
+    std::smatch match;
+    if (!std::regex_match(message, match, replyRegex)) {
+        return false;
+    }
+    std::string name = match.str(3);
+    std::string port = match.str(2);
+    return port.length() < 6 && name.length() <= 64;
 }
 
 std::string Reply::toString() {
-    return "BOREWICZ_HERE " + mcast_addr + " " + std::to_string(data_port) + " " + name;
+    return "BOREWICZ_HERE " + mcast_addr + " " + std::to_string(data_port) + " " + name + "\n";
 }
 
 bool Rexmit::isRexmit(std::string message) {
@@ -36,8 +42,9 @@ Rexmit::Rexmit(std::string message) {
     std::stringstream str(message);
     uint64_t package;
     str >> dummyString;
-    str >> package;
-    packages.push_back(package);
+    if (str >> package) {
+        packages.push_back(package);
+    }
     while (str >> dummyChar >> package) {
         packages.push_back(package);
     }
@@ -51,5 +58,6 @@ std::string Rexmit::toString() {
         }
         result += std::to_string(packages[i]);
     }
+    result += "\n";
     return result;
 }

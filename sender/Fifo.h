@@ -9,17 +9,17 @@
 
 class Fifo {
     int fsize;
-    unsigned char *data;
+    uint8_t *data;
     int end = 0;
     uint64_t bytesReceived = 0;
     std::mutex fifoMutex;
 public:
     Fifo(int fsize) : fsize(fsize) {
-        data = new unsigned char[fsize];
+        data = new uint8_t[fsize];
     }
 
-    bool getBytes(uint64_t firstByte, int psize, unsigned char *dest);
-    void newByte(unsigned char byte);
+    bool getBytes(uint64_t firstByte, int psize, uint8_t *dest);
+    void newByte(uint8_t byte);
 
     ~Fifo() {
         delete[] data;

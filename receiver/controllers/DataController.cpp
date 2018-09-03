@@ -20,7 +20,7 @@ void DataController::play() {
     Package package;
     std::thread out;
     while (isPlaying) {
-        rcv_len = (int) read(dataSocket, &package, 1500);
+        rcv_len = (int) read(dataSocket, &package, MAX_DATAGRAM_SIZE);
         if (rcv_len > 0) {
             if (first || package.session_id > session_id || buffer->hasLackingBytes()) {
                 if (out.joinable()) {
@@ -35,7 +35,7 @@ void DataController::play() {
             }
             if (package.session_id == session_id) {
                 buffer->storePackage(package);
-                if (buffer->ready() && !buffer->isFlushing()) {
+                if (!buffer->isFlushing() && buffer->ready()) {
                     buffer->setFlushing(true);
                     out = std::thread(&Buffer::flush, buffer);
                 }
@@ -58,8 +58,9 @@ void DataController::notifyCurrentSenderChange() {
     }
     if (stationController->hasSenders()) {
         sender = stationController->getCurrentSender();
-        sender.initializeDataSocket();
-        isPlaying = true;
-        playThread = std::thread(&DataController::play, this);
+        if (sender.initializeDataSocket()) {
+            isPlaying = true;
+            playThread = std::thread(&DataController::play, this);
+        }
     }
 }

@@ -2,7 +2,7 @@
 #include "Buffer.h"
 
 void Buffer::storePackage(Package &package) {
-    std::lock_guard<std::mutex> lock(bufferLock);
+    //std::lock_guard<std::mutex> lock(bufferLock);
     if (maxReceived + psize >= size + package.first_byte_num) {
         return; //package too old
     }
@@ -12,17 +12,38 @@ void Buffer::storePackage(Package &package) {
         }
         maxReceived = package.first_byte_num;
     }
-    int pos = (package.first_byte_num - byte0) % (uint64_t)size;
+    int pos = package.first_byte_num % (uint64_t)size;
     for (int i = 0 ; i < psize ; i++) {
         buffer[(pos + i) % size] = package.audio_data[i];
         filled[(pos + i) % size] = true;
     }
 }
 
-unsigned char Buffer::getNextByte() {
-    std::lock_guard<std::mutex> lock(bufferLock);
-    unsigned char result = buffer[begin % size];
-    filled[begin % size] = false;
-    begin++;
-    return result;
+bool Buffer::printNextSample() {
+    //std::lock_guard<std::mutex> lock(bufferLock);
+    if (begin + size < maxReceived + psize) {
+        return false;
+    } else if (begin + 3 >= maxReceived + psize) {
+        return false;
+    }
+    for (int i = 0 ; i < 4 ; i++) {
+        if (!filled[(begin + i) % size]) {
+            return false;
+        }
+    }
+    for (int i = 0 ; i < 4 ; i++) {
+        putchar(buffer[begin % size]);
+        filled[begin % size] = false;
+        begin++;
+    }
+    return true;
+}
+
+void Buffer::flush() {
+    while (flushing) {
+        if (!printNextSample()) {
+            lackingBytes = true;
+            return;
+        }
+    }
 }

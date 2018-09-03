@@ -36,6 +36,8 @@ public:
     }
 };
 
+const std::string separator = "------------------------------------------------------------------------\n\r";
+
 class MenuController {
     StationController *stationController;
     unsigned int ui_port;

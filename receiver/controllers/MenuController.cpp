@@ -16,9 +16,9 @@
 std::string MenuController::getMenuRepresentation() {
     std::vector<Sender> available_senders = stationController->getSenders();
     Sender currentSender = stationController->getCurrentSender();
-    std::string result = "------------------------------------------------------------------------\n\r"
-                         "  SIK Radio\n\r"
-                         "------------------------------------------------------------------------\n\r";
+    std::string result = separator +
+                         "  SIK Radio\n\r" +
+                         separator;
     for (auto &available_sender : available_senders) {
         result += "  ";
         if (currentSender == available_sender) {
@@ -28,7 +28,7 @@ std::string MenuController::getMenuRepresentation() {
         }
         result += available_sender.getName() + "\n\r";
     }
-    result += "------------------------------------------------------------------------\n\r";
+    result += separator;
     return result;
 }
 
@@ -55,12 +55,11 @@ void MenuController::handleConnection(int socket) {
     unsigned char line[100];
     memset(line, 0, sizeof(line));
     MenuAutomata automata;
-    while(true) {
+    while (true) {
         int ret = (int)read(socket, line, sizeof(line));
         for (int i = 0 ; i < ret ; i++) {
             executeUserAction(automata.nextByte(line[i]));
         }
-        //todo: sprawdzic kod bledu
         if (ret == -1) {
             perror("read");
         } else if (ret == 0) {

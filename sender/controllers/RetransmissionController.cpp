@@ -29,7 +29,6 @@ void RetransmissionController::collectRetransmissions() {
 }
 
 void RetransmissionController::retransmit(Rexmit &rexmit) {
-    queueLock.lock();
+    std::lock_guard<std::mutex> lock(queueLock);
     rexmitQueue.push_back(rexmit);
-    queueLock.unlock();
 }

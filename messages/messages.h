@@ -46,10 +46,12 @@ public:
     }
 };
 
+static const int MAX_DATAGRAM_SIZE = 65507;
+
 struct Package {
     uint64_t session_id;
     uint64_t first_byte_num;
-    unsigned char audio_data[10000];
+    uint8_t audio_data[MAX_DATAGRAM_SIZE];
 
     Package() {}
 
@@ -57,6 +59,6 @@ struct Package {
             session_id(session_id), first_byte_num(first_byte_num) {}
 };
 
-const std::string LOOKUP = "ZERO_SEVEN_COME_IN";
+const std::string LOOKUP = "ZERO_SEVEN_COME_IN\n";
 
 #endif //SIKRADIO_MESSAGES_H

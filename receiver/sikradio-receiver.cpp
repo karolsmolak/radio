@@ -29,6 +29,7 @@ int RTIME; //przerwa pomiędzy kolejnymi prośbami o retransmisje
 std::string FIRST_STATION; //pierwsza stacja
 
 int main(int argc, char* argv[]) {
+    srand(time(NULL));
     parseArgs(argc, argv);
 
     CtrlController ctrlController(DISCOVER_ADDR, CTRL_PORT);
@@ -68,7 +69,7 @@ void parseArgs(int argc, char **argv) {
         po::options_description desc{"Opcje"};
         desc.add_options()
         ("help,h", "Help screen")
-        ("discover_addr,a", po::value<std::string>()->default_value("255.255.255.255"), "Adres używany przez odbiornik do wykrywania aktywnych nadajników")
+        ("discover_addr,d", po::value<std::string>()->default_value("255.255.255.255"), "Adres używany przez odbiornik do wykrywania aktywnych nadajników")
         ("ui_port,U", po::value<int>()->default_value(10000 + 385978 % 10000), "Port TCP, na którym udostępniany jest interfejs tekstowy")
         ("ctrl_port,C", po::value<int>()->default_value(30000 + 385978 % 10000), "Port UDP używany do transmisji pakietów kontrolnych")
         ("bsize,b", po::value<int>()->default_value(64 * 1024), "Rozmiar w bajtach bufora")
@@ -87,6 +88,22 @@ void parseArgs(int argc, char **argv) {
         RTIME = vm["rtime"].as<int>();
         FIRST_STATION = vm["first_station"].as<std::string>();
         DISCOVER_ADDR = vm["discover_addr"].as<std::string>();
+        if (CTRL_PORT <= 0) {
+            std::cerr << "BLAD: port kontrolny < 0";
+            exit(1);
+        }
+        if (UI_PORT <= 0) {
+            std::cerr << "BLAD: port interfejsu < 0";
+            exit(1);
+        }
+        if (BSIZE <= 0) {
+            std::cerr << "BLAD: rozmiar buforu <= 0";
+            exit(1);
+        }
+        if (RTIME <= 0) {
+            std::cerr << "BLAD: czas retransmisji <= 0";
+            exit(1);
+        }
     } catch (const po::error &error) {
         std::cerr << error.what() << '\n';
         exit(1);

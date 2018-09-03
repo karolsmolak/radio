@@ -18,7 +18,6 @@ class RetransmissionController;
 class CtrlController {
     int port;
     int ctrlSocket;
-    int ctrlSend;
     int dataPort;
     std::string name;
     std::string mcastAddr;

@@ -64,7 +64,7 @@ void parseArgs(int argc, char *argv[]) {
         po::options_description desc{"Opcje"};
         desc.add_options()
                 ("help,h", "Help screen")
-                ("mcast_addr,a", po::value<std::string>(), "Adres rozglaszania ukierunkowanego")
+                ("mcast_addr,a", po::value<std::string>()->required(), "Adres rozglaszania ukierunkowanego")
                 ("psize,p", po::value<int>()->default_value(512), "Rozmiar w bajtach paczki")
                 ("fsize,f", po::value<int>()->default_value(128 * 1024), "Rozmiar w bajtach kolejki FIFO nadajnika")
                 ("ctrl_port,C", po::value<int>()->default_value(30000 + 385978 % 10000), "Port UDP uzywany do transmisji pakietow kontrolnych")
@@ -78,10 +78,6 @@ void parseArgs(int argc, char *argv[]) {
             std::cout << desc << '\n';
             exit(0);
         }
-        if (!vm.count("mcast_addr")) {
-            std::cout << "MCAST_ADDR is required\n";
-            exit(0);
-        }
         PSIZE = vm["psize"].as<int>();
         FSIZE = vm["fsize"].as<int>();
         CTRL_PORT = vm["ctrl_port"].as<int>();
@@ -89,6 +85,22 @@ void parseArgs(int argc, char *argv[]) {
         NAME = vm["name"].as<std::string>();
         RTIME = vm["rtime"].as<int>();
         MCAST_ADDR = vm["mcast_addr"].as<std::string>();
+        if (PSIZE <= 0) {
+            std::cerr << "Rozmiar paczki musi byc dodatni";
+            exit(1);
+        }
+        if (FSIZE < 0) {
+            std::cerr << "Rozmiar kolejki fifo musi byc nieujemny";
+            exit(1);
+        }
+        if (CTRL_PORT <= 0 || DATA_PORT <= 0) {
+            std::cerr << "Numer portu musi byc dodatni";
+            exit(1);
+        }
+        if (RTIME < 0) {
+            std::cerr << "Czas miedzy retransmisjami musi byc nieujemny";
+            exit(1);
+        }
     } catch (const po::error &error) {
         std::cerr << error.what() << '\n';
         exit(1);
