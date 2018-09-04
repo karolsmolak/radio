@@ -6,7 +6,7 @@ static const int START_LOOKUP_RETRIES = 6;
 
 #include <mutex>
 #include <vector>
-#include "../Sender.h"
+#include "Sender.h"
 #include "../../messages/messages.h"
 #include "CtrlController.h"
 #include "DataController.h"

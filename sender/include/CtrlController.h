@@ -11,7 +11,6 @@
 #include "../../utils/err.h"
 #include "../../messages/messages.h"
 #include "RetransmissionController.h"
-#include "boost/log/trivial.hpp"
 
 class RetransmissionController;
 

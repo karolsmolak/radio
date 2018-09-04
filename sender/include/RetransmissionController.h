@@ -4,11 +4,10 @@
 
 #include <thread>
 #include <mutex>
-#include "../Fifo.h"
+#include "Fifo.h"
 #include "../../messages/messages.h"
 #include "CtrlController.h"
 #include "DataController.h"
-#include <boost/log/trivial.hpp>
 
 class Fifo;
 class DataController;

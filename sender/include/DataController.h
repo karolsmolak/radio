@@ -22,6 +22,7 @@ public:
     ~DataController() {
         close(dataSocket);
     }
+
 };
 
 

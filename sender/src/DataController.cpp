@@ -1,4 +1,4 @@
-#include "DataController.h"
+#include "../include/DataController.h"
 
 DataController::DataController(int dataPort, const std::string &mcastAddr, int packageSize) : dataPort(dataPort), mcastAddr(mcastAddr), packageSize(packageSize) {
     dataSocket = socket(AF_INET, SOCK_DGRAM, 0);

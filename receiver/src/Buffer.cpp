@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Buffer.h"
+#include "../include/Buffer.h"
 
 void Buffer::storePackage(Package &package) {
     std::lock_guard<std::mutex> lock(bufferLock);

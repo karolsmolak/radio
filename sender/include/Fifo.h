@@ -4,7 +4,6 @@
 
 #include <string>
 #include <cstring>
-#include <boost/log/trivial.hpp>
 #include <mutex>
 
 class Fifo {

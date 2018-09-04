@@ -1,5 +1,5 @@
 #include <iostream>
-#include "CtrlController.h"
+#include "../include/CtrlController.h"
 
 void CtrlController::readMessages() {
     socklen_t snda_len, rcva_len;

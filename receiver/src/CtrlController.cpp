@@ -2,8 +2,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <thread>
-#include <boost/log/trivial.hpp>
-#include "CtrlController.h"
+#include "../include/CtrlController.h"
 #include "../../utils/err.h"
 
 void CtrlController::sendMessage(std::string message, struct sockaddr_in address) {

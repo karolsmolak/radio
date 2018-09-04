@@ -1,9 +1,9 @@
 #include <iostream>
 #include <boost/program_options.hpp>
-#include "../utils/err.h"
-#include "controllers/StationController.h"
-#include "controllers/DataController.h"
-#include "controllers/MenuController.h"
+#include "../../utils/err.h"
+#include "../include/StationController.h"
+#include "../include/DataController.h"
+#include "../include/MenuController.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/types.h>
@@ -14,9 +14,6 @@
 #include <mutex>
 #include <sys/fcntl.h>
 #include <future>
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
 
 namespace po = boost::program_options;
 

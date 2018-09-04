@@ -4,7 +4,7 @@
 #include <set>
 #include <mutex>
 #include <map>
-#include "../Sender.h"
+#include "Sender.h"
 
 class StationController;
 class DataController;

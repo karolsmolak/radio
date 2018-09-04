@@ -3,13 +3,12 @@
 
 #include <string>
 #include <chrono>
-#include "../utils/err.h"
-#include "../messages/messages.h"
+#include "../../utils/err.h"
+#include "../../messages/messages.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <ostream>
-#include <boost/log/trivial.hpp>
 #include <iostream>
 
 class Sender {

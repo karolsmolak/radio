@@ -1,12 +1,11 @@
 #ifndef SIKRADIO_BUFFER_H
 #define SIKRADIO_BUFFER_H
 
-
-#include <boost/log/trivial.hpp>
 #include <mutex>
 #include <thread>
 #include <iostream>
-#include "../messages/messages.h"
+#include <atomic>
+#include "../../messages/messages.h"
 
 //Class responsible for storing audio data
 class Buffer {

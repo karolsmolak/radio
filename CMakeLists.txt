@@ -4,7 +4,7 @@ project(sikradio)
 
 ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
 
-FIND_PACKAGE( Boost 1.6.1 COMPONENTS program_options log REQUIRED )
+FIND_PACKAGE( Boost 1.6.1 COMPONENTS program_options REQUIRED )
 find_package (Threads)
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
@@ -21,33 +21,33 @@ macro (add_executable _name)
 endmacro()
 
 add_executable(sikradio-sender
-        sender/sikradio-sender.cpp
-        sender/controllers/CtrlController.cpp
-        sender/controllers/CtrlController.h
+        sender/src/sikradio-sender.cpp
+        sender/src/CtrlController.cpp
+        sender/include/CtrlController.h
         messages/messages.cpp
         messages/messages.h
         utils/err.cpp
         utils/err.h
-        sender/controllers/RetransmissionController.cpp
-        sender/controllers/RetransmissionController.h
-        sender/Fifo.h
-        sender/controllers/DataController.h sender/controllers/DataController.cpp sender/Fifo.cpp)
+        sender/src/RetransmissionController.cpp
+        sender/include/RetransmissionController.h
+        sender/include/Fifo.h
+        sender/include/DataController.h sender/src/DataController.cpp sender/src/Fifo.cpp)
 
 add_executable(sikradio-receiver
-        receiver/sikradio-receiver.cpp
+        receiver/src/sikradio-receiver.cpp
         utils/err.cpp utils/err.h
-        receiver/controllers/MenuController.cpp
-        receiver/controllers/MenuController.h
-        receiver/controllers/StationController.cpp
-        receiver/controllers/StationController.h
-        receiver/controllers/DataController.cpp
-        receiver/controllers/DataController.h
+        receiver/src/MenuController.cpp
+        receiver/include/MenuController.h
+        receiver/src/StationController.cpp
+        receiver/include/StationController.h
+        receiver/src/DataController.cpp
+        receiver/include/DataController.h
         messages/messages.cpp
         messages/messages.h
-        receiver/Sender.h
-        receiver/controllers/CtrlController.cpp
-        receiver/controllers/CtrlController.h
-        receiver/Buffer.cpp
-        receiver/Buffer.h
-        receiver/controllers/RetransmissionController.cpp
-        receiver/controllers/RetransmissionController.h )
+        receiver/include/Sender.h
+        receiver/src/CtrlController.cpp
+        receiver/include/CtrlController.h
+        receiver/src/Buffer.cpp
+        receiver/include/Buffer.h
+        receiver/src/RetransmissionController.cpp
+        receiver/include/RetransmissionController.h)

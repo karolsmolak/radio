@@ -5,7 +5,6 @@
 #include <vector>
 #include <regex>
 #include <set>
-#include <boost/log/trivial.hpp>
 
 class Reply {
     std::string mcast_addr;

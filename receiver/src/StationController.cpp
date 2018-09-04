@@ -6,10 +6,9 @@
 #include <cstring>
 #include <thread>
 #include <fcntl.h>
-#include <boost/log/trivial.hpp>
 #include <iostream>
-#include "StationController.h"
-#include "MenuController.h"
+#include "../include/StationController.h"
+#include "../include/MenuController.h"
 #include "../../utils/err.h"
 
 void StationController::sendControllPackets() {
@@ -118,4 +117,6 @@ void StationController::sendLookupsOnStart(const std::chrono::duration<int64_t, 
     }
 }
 
-bool StationController::isSenderChangeable() const { return senders.size() > 1; }
+bool StationController::isSenderChangeable() const {
+    return senders.size() > 1;
+}

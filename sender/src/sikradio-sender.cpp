@@ -1,15 +1,13 @@
 #include <iostream>
-#include <boost/program_options.hpp>
-#include "../utils/err.h"
-#include "controllers/CtrlController.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <future>
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
+#include <boost/program_options.hpp>
+#include "../include/DataController.h"
+#include "../include/Fifo.h"
+#include "../include/RetransmissionController.h"
 
 namespace po = boost::program_options;
 

@@ -1,4 +1,4 @@
-#include "Fifo.h"
+#include "../include/Fifo.h"
 
 bool Fifo::getBytes(uint64_t firstByte, int psize, uint8_t *dest) {
     std::lock_guard<std::mutex> lock(fifoMutex);

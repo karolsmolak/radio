@@ -4,9 +4,8 @@
 #include <unistd.h>
 #include <iostream>
 #include <cstring>
-#include <boost/log/trivial.hpp>
 #include <poll.h>
-#include "DataController.h"
+#include "../include/DataController.h"
 #include "../../utils/err.h"
 #include "../../messages/messages.h"
 

@@ -6,12 +6,11 @@
 #include <cstring>
 #include <thread>
 #include <vector>
-#include <boost/log/trivial.hpp>
 #include <iostream>
 #include "../../utils/err.h"
-#include "MenuController.h"
-#include "StationController.h"
-#include "../Sender.h"
+#include "../include/MenuController.h"
+#include "../include/StationController.h"
+#include "../include/Sender.h"
 
 std::string MenuController::getMenuRepresentation() {
     std::vector<Sender> available_senders = stationController->getSenders();
