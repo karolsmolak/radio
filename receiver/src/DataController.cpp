@@ -21,6 +21,8 @@ void DataController::play() {
     while (isPlaying) {
         rcv_len = (int) read(dataSocket, &package, MAX_DATAGRAM_SIZE);
         if (rcv_len > 0) {
+            package.session_id = be64toh(package.session_id);
+            package.first_byte_num = be64toh(package.first_byte_num);
             if (first || package.session_id > session_id || buffer->hasLackingBytes()) {
                 if (out.joinable()) {
                     buffer->setFlushing(false);

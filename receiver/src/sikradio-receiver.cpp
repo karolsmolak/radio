@@ -26,7 +26,6 @@ int RTIME; //przerwa pomiędzy kolejnymi prośbami o retransmisje
 std::string FIRST_STATION; //pierwsza stacja
 
 int main(int argc, char* argv[]) {
-    srand(time(NULL));
     parseArgs(argc, argv);
 
     CtrlController ctrlController(DISCOVER_ADDR, CTRL_PORT);
@@ -66,12 +65,12 @@ void parseArgs(int argc, char **argv) {
         po::options_description desc{"Opcje"};
         desc.add_options()
         ("help,h", "Help screen")
-        ("discover_addr,d", po::value<std::string>()->default_value("255.255.255.255"), "Adres używany przez odbiornik do wykrywania aktywnych nadajników")
-        ("ui_port,U", po::value<int>()->default_value(10000 + 385978 % 10000), "Port TCP, na którym udostępniany jest interfejs tekstowy")
-        ("ctrl_port,C", po::value<int>()->default_value(30000 + 385978 % 10000), "Port UDP używany do transmisji pakietów kontrolnych")
-        ("bsize,b", po::value<int>()->default_value(64 * 1024), "Rozmiar w bajtach bufora")
-        ("rtime,R", po::value<int>()->default_value(250), "Czas pomiędzy retransmisjami")
-        ("first_station,n",po::value<std::string>()->default_value(""), "Nazwa stacji");
+        ("discover_addr,d", po::value<std::string>(&DISCOVER_ADDR)->default_value("255.255.255.255"), "Adres używany przez odbiornik do wykrywania aktywnych nadajników")
+        ("ui_port,U", po::value<int>(&UI_PORT)->default_value(10000 + 385978 % 10000), "Port TCP, na którym udostępniany jest interfejs tekstowy")
+        ("ctrl_port,C", po::value<int>(&CTRL_PORT)->default_value(30000 + 385978 % 10000), "Port UDP używany do transmisji pakietów kontrolnych")
+        ("bsize,b", po::value<int>(&BSIZE)->default_value(64 * 1024), "Rozmiar w bajtach bufora")
+        ("rtime,R", po::value<int>(&RTIME)->default_value(250), "Czas pomiędzy retransmisjami")
+        ("first_station,n",po::value<std::string>(&FIRST_STATION)->default_value(""), "Nazwa stacji");
         po::variables_map vm;
         po::store(po::parse_command_line(argc, argv, desc), vm);
         po::notify(vm);
@@ -79,26 +78,20 @@ void parseArgs(int argc, char **argv) {
             std::cout << desc << '\n';
             exit(0);
         }
-        CTRL_PORT = vm["ctrl_port"].as<int>();
-        UI_PORT = vm["ui_port"].as<int>();
-        BSIZE = vm["bsize"].as<int>();
-        RTIME = vm["rtime"].as<int>();
-        FIRST_STATION = vm["first_station"].as<std::string>();
-        DISCOVER_ADDR = vm["discover_addr"].as<std::string>();
         if (CTRL_PORT <= 0) {
-            std::cerr << "BLAD: port kontrolny < 0";
+            std::cerr << "BLAD: port kontrolny <= 0";
             exit(1);
         }
         if (UI_PORT <= 0) {
-            std::cerr << "BLAD: port interfejsu < 0";
+            std::cerr << "BLAD: port interfejsu <= 0";
             exit(1);
         }
         if (BSIZE <= 0) {
             std::cerr << "BLAD: rozmiar buforu <= 0";
             exit(1);
         }
-        if (RTIME <= 0) {
-            std::cerr << "BLAD: czas retransmisji <= 0";
+        if (RTIME < 0) {
+            std::cerr << "BLAD: czas retransmisji < 0";
             exit(1);
         }
     } catch (const po::error &error) {

@@ -38,14 +38,15 @@ int main(int argc, char* argv[]) {
     std::thread retransmissionWorker = std::thread(&RetransmissionController::collectRetransmissions, &retransmissionController);
 
     uint64_t byteNum = 0;
-    Package package(sessionId, byteNum);
+    Package package;
+    package.session_id = htobe64(sessionId);
     int byte;
     while ((byte = getchar()) != EOF) {
         fifo.newByte(byte);
-        package.audio_data[byteNum % PSIZE] = byte;
+        package.audio_data[byteNum % PSIZE] = (uint8_t) byte;
         byteNum++;
         if (byteNum % PSIZE == 0) {
-            package.first_byte_num = byteNum - PSIZE;
+            package.first_byte_num = htobe64(byteNum - PSIZE);
             dataController.sendPackage(package);
         }
     }
@@ -62,13 +63,13 @@ void parseArgs(int argc, char *argv[]) {
         po::options_description desc{"Opcje"};
         desc.add_options()
                 ("help,h", "Help screen")
-                ("mcast_addr,a", po::value<std::string>()->required(), "Adres rozglaszania ukierunkowanego")
-                ("psize,p", po::value<int>()->default_value(512), "Rozmiar w bajtach paczki")
-                ("fsize,f", po::value<int>()->default_value(128 * 1024), "Rozmiar w bajtach kolejki FIFO nadajnika")
-                ("ctrl_port,C", po::value<int>()->default_value(30000 + 385978 % 10000), "Port UDP uzywany do transmisji pakietow kontrolnych")
-                ("data_port,P", po::value<int>()->default_value(20000 + 385978 % 10000), "Port UDP używany do przesyłania danych")
-                ("rtime,R", po::value<int>()->default_value(250), "Czas (w milisekundach) pomiędzy wysłaniem kolejnych raportów o brakujących paczkach (dla odbiorników) oraz czas między kolejnymi retransmisjami paczek.")
-                ("name,n", po::value<std::string>()->default_value("Nienazwany Nadajnik"), "Nazwa nadajnika");
+                ("mcast_addr,a", po::value<std::string>(&MCAST_ADDR)->required(), "Adres rozglaszania ukierunkowanego")
+                ("psize,p", po::value<int>(&PSIZE)->default_value(512), "Rozmiar w bajtach paczki")
+                ("fsize,f", po::value<int>(&FSIZE)->default_value(128 * 1024), "Rozmiar w bajtach kolejki FIFO nadajnika")
+                ("ctrl_port,C", po::value<int>(&CTRL_PORT)->default_value(30000 + 385978 % 10000), "Port UDP uzywany do transmisji pakietow kontrolnych")
+                ("data_port,P", po::value<int>(&DATA_PORT)->default_value(20000 + 385978 % 10000), "Port UDP używany do przesyłania danych")
+                ("rtime,R", po::value<int>(&RTIME)->default_value(250), "Czas (w milisekundach) pomiędzy wysłaniem kolejnych raportów o brakujących paczkach (dla odbiorników) oraz czas między kolejnymi retransmisjami paczek.")
+                ("name,n", po::value<std::string>(&NAME)->default_value("Nienazwany Nadajnik"), "Nazwa nadajnika");
         po::variables_map vm;
         po::store(po::parse_command_line(argc, argv, desc), vm);
         po::notify(vm);
@@ -76,13 +77,6 @@ void parseArgs(int argc, char *argv[]) {
             std::cout << desc << '\n';
             exit(0);
         }
-        PSIZE = vm["psize"].as<int>();
-        FSIZE = vm["fsize"].as<int>();
-        CTRL_PORT = vm["ctrl_port"].as<int>();
-        DATA_PORT = vm["data_port"].as<int>();
-        NAME = vm["name"].as<std::string>();
-        RTIME = vm["rtime"].as<int>();
-        MCAST_ADDR = vm["mcast_addr"].as<std::string>();
         if (PSIZE <= 0) {
             std::cerr << "Rozmiar paczki musi byc dodatni";
             exit(1);

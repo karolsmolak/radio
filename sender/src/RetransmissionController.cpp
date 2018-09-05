@@ -18,9 +18,10 @@ void RetransmissionController::collectRetransmissions() {
                 }
             }
         }
-        Package toSend = Package(sessionId, 0);
+        Package toSend;
+        toSend.session_id = htobe64(sessionId);
         for (uint64_t package : packageSet) {
-            toSend.first_byte_num = package;
+            toSend.first_byte_num = htobe64(package);
             if (fifo->getBytes(package, psize, toSend.audio_data)) {
                 dataController->sendPackage(toSend);
             }

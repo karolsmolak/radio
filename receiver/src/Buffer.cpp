@@ -3,16 +3,17 @@
 
 void Buffer::storePackage(Package &package) {
     std::lock_guard<std::mutex> lock(bufferLock);
-    if (maxReceived + psize >= size + package.first_byte_num) {
+    uint64_t firstByte = package.first_byte_num;
+    if (maxReceived + psize >= size + firstByte) {
         return; //package too old
     }
-    if (package.first_byte_num > maxReceived) {
-        for (uint64_t i = package.first_byte_num - 1 ; i >= maxReceived + psize ; i--) {
+    if (firstByte > maxReceived) {
+        for (uint64_t i = firstByte - 1 ; i >= maxReceived + psize ; i--) {
             filled[i % size] = false;
         }
-        maxReceived = package.first_byte_num;
+        maxReceived = firstByte;
     }
-    int pos = package.first_byte_num % (uint64_t)size;
+    int pos = firstByte % (uint64_t)size;
     for (int i = 0 ; i < psize ; i++) {
         buffer[(pos + i) % size] = package.audio_data[i];
         filled[(pos + i) % size] = true;
